@@ -12,9 +12,8 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-
-import { logo } from 'src/assets/brand/logo'
-import { sygnet } from 'src/assets/brand/sygnet'
+import { logo } from '../assets/brand/logo'
+import { sygnet } from '../assets/brand/sygnet'
 
 // sidebar nav config
 import navigation from '../_nav'
@@ -47,11 +46,11 @@ const AppSidebar = () => {
         />
       </CSidebarHeader>
       <AppSidebarNav items={navigation} />
-      <CSidebarFooter className="border-top d-none d-lg-flex">
+      {/* <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />
-      </CSidebarFooter>
+      </CSidebarFooter> */}
     </CSidebar>
   )
 }

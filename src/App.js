@@ -1,9 +1,14 @@
 import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { Route, Routes, BrowserRouter as Router } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
+import Dashboard from './views/dashboard/Dashboard'
+import Completed from './views/pages/Completed'
+import Pending from './views/pages/Pending'
+import Failed from './views/pages/Failed'
+import Settings from './views/pages/Settings'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -33,7 +38,7 @@ const App = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <HashRouter>
+    <Router>
       <Suspense
         fallback={
           <div className="pt-3 text-center">
@@ -42,14 +47,17 @@ const App = () => {
         }
       >
         <Routes>
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          <Route exact path="/" name="Dashboard" element={<Dashboard />} />
+          <Route path="/login" name="Login Page" element={<Login />} />
+          <Route path="/register" name="Register Page" element={<Register />} />
+          <Route path="/completed" name="Completed" element={<Completed />} />
+          <Route path="/pending" name="Pending" element={<Pending />} />
+          <Route path="/failed" name="Failed" element={<Failed />} />
+          <Route path="/settings" name="Settings" element={<Settings />} />
+          <Route path="*" name="Page 404" element={<Page404 />} />
         </Routes>
       </Suspense>
-    </HashRouter>
+    </Router>
   )
 }
 
