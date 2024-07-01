@@ -42,7 +42,7 @@ const WidgetsDropdown = (props) => {
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="primary"
-          value={<>1500</>}
+          value={<>{props.completed}</>}
           title="Completed"
           chart={
             <CChartLine
@@ -112,7 +112,7 @@ const WidgetsDropdown = (props) => {
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="info"
-          value={<>500</>}
+          value={<>{props.pending}</>}
           title="Pending"
           chart={
             <CChartLine
@@ -181,7 +181,7 @@ const WidgetsDropdown = (props) => {
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="danger"
-          value={<>231</>}
+          value={<>{props.failed}</>}
           title="Failed"
           chart={
             <CChartLine
@@ -233,7 +233,7 @@ const WidgetsDropdown = (props) => {
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="warning"
-          value={<>2231</>}
+          value={<>{props.total}</>}
           title="Total"
           chart={
             <CChartBar

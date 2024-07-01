@@ -3,22 +3,62 @@ import { useNavigate } from 'react-router-dom'
 
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import DefaultLayout from '../../layout/DefaultLayout'
+import { CSpinner } from '@coreui/react'
+import { API_URL } from '../../store'
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const [token, setToken] = useState(localStorage.getItem('token') || '')
+  const [allUsers, setallUsers] = useState([])
+  const [loader, setLoader] = useState(false)
   useEffect(() => {
     const getToken = localStorage.getItem('token')
     if (getToken) {
+      getAllUsers()
       setToken(getToken)
     } else {
       navigate('/login')
     }
   }, [])
+  const getAllUsers = () => {
+    setLoader(true)
+    const myHeaders = new Headers()
+    myHeaders.append('Authorization', token)
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    }
+
+    fetch(API_URL + 'users', requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result)
+        if (result.success) {
+          // setallUsers(result.Users?.filter((user) => user.status == 'Failed'))
+          setallUsers(result.Users)
+          setLoader(false)
+        }
+      })
+      .catch((error) => console.error(error))
+  }
   return (
     <>
       <DefaultLayout>
-        <WidgetsDropdown className="mb-4" />
+        {loader ? (
+          <center className="mt-4">
+            <CSpinner color="primary" variant="grow" />
+          </center>
+        ) : (
+          <WidgetsDropdown
+            className="mb-4"
+            total={allUsers.length}
+            completed={allUsers.filter((user) => user.status == 'Answered').length}
+            pending={allUsers.filter((user) => user.status == 'Pending').length}
+            failed={allUsers.filter((user) => user.status == 'Failed').length}
+          />
+        )}
       </DefaultLayout>
       {/* <CCard className="mb-4">
         <CCardBody>
