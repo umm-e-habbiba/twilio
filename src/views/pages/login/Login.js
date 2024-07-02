@@ -35,8 +35,8 @@ const Login = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: 'Admin@gmail.com',
-      password: 'admin@123',
+      email: '',
+      password: '',
     },
   })
 
@@ -99,20 +99,20 @@ const Login = () => {
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol md={6}>
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit(login)}>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
-                    <CInputGroup className="mb-3">
+                    <h1 className="text-center mb-2 text-2xl">Login</h1>
+                    <p className="text-body-secondary text-center mb-3">Sign In to your account</p>
+                    <CInputGroup className="mb-4">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
                       <CFormInput
-                        placeholder="Username"
-                        autoComplete="username"
+                        placeholder="Email"
+                        autoComplete="email"
                         {...register('email', { required: true })}
                         feedback="Please enter your email."
                         invalid={errors.email ? true : false}
@@ -131,7 +131,7 @@ const Login = () => {
                         invalid={errors.password ? true : false}
                       />
                     </CInputGroup>
-                    <div className="my-2">
+                    <div className="mt-2 mb-4">
                       {loginError && <span className="text-red-400 my-3">{loginErrorValue}</span>}
                     </div>
                     <CRow>

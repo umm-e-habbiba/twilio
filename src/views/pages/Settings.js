@@ -61,8 +61,14 @@ const Settings = () => {
     const getToken = localStorage.getItem('token')
     if (getToken) {
       setToken(getToken)
+      startCalling()
       getCallSettings()
       getSMSSettings()
+      const interval = setInterval(() => {
+        startCalling()
+      }, 300000)
+
+      return () => clearInterval(interval)
     } else {
       navigate('/login')
     }
@@ -349,25 +355,17 @@ const Settings = () => {
           <div className="flex justify-between items-center">
             <div className="flex justify-start items-center flex-row">
               <span>Your{'  '}</span>
-              {/* <input
-                  type="number"
-                  className="border-b-2 text-center"
-                  value={callNumber}
-                  onChange={(e) => {
-                    setCallNumber(e.target.value)
-                    setshowSaveBtn(true)
-                  }}
-                /> */}
               <span className="flex items-center max-w-[10rem] px-3">
                 <button
                   type="button"
                   id="decrement-button"
                   data-input-counter-decrement="quantity-input"
-                  className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+                  className={`${callNumber == 0 ? 'opacity-70' : ''} flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none`}
                   onClick={() => {
                     setCallNumber(callNumber - 1)
-                    // setshowSaveBtn(true)
+                    setshowSaveBtn(true)
                   }}
+                  disabled={callNumber == 0 ? true : false}
                 >
                   <CIcon icon={cilMinus} />
                 </button>
@@ -379,7 +377,7 @@ const Settings = () => {
                   value={callNumber}
                   onChange={(e) => {
                     setCallNumber(e.target.value)
-                    // setshowSaveBtn(true)
+                    setshowSaveBtn(true)
                   }}
                   required
                 />
@@ -390,7 +388,7 @@ const Settings = () => {
                   className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
                   onClick={() => {
                     setCallNumber(callNumber + 1)
-                    // setshowSaveBtn(true)
+                    setshowSaveBtn(true)
                   }}
                 >
                   <CIcon icon={cilPlus} />
@@ -400,7 +398,7 @@ const Settings = () => {
                 {'  '}
                 Calls per Hour
               </span>
-              {/* {showSaveBtn && (
+              {showSaveBtn && (
                 <CButton
                   color="success"
                   type="submit"
@@ -410,9 +408,9 @@ const Settings = () => {
                 >
                   {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
                 </CButton>
-              )} */}
+              )}
             </div>
-            <CButton
+            {/* <CButton
               color="primary"
               className="px-4 text-white"
               disabled={callLoader ? true : false}
@@ -426,7 +424,7 @@ const Settings = () => {
                   Start Calling
                 </>
               )}
-            </CButton>
+            </CButton> */}
           </div>
           {/* <CFormInput
             type="number"
@@ -579,7 +577,7 @@ const Settings = () => {
                   ) : (
                     <CTableRow>
                       <CTableDataCell colSpan={5} className="text-center">
-                        Nothing found
+                        No Messages added yet
                       </CTableDataCell>
                     </CTableRow>
                   )}
