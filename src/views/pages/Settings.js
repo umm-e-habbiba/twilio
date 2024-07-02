@@ -290,6 +290,7 @@ const Settings = () => {
       })
       .catch((error) => {
         console.error(error)
+        setCallLoader(false)
       })
   }
   const editSMS = () => {
@@ -505,7 +506,7 @@ const Settings = () => {
               disabled={smsLoading ? true : false}
               onClick={addSMSSetting}
             >
-              {smsLoading ? <CSpinner color="light" size="sm" /> : 'Add More'}
+              {smsLoading ? <CSpinner color="light" size="sm" /> : 'Add Message'}
             </CButton>
           </center>
           {smsSuccess ? (
