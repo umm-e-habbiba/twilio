@@ -310,7 +310,10 @@ const Settings = () => {
                   id="decrement-button"
                   data-input-counter-decrement="quantity-input"
                   className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
-                  onClick={() => setCallNumber(callNumber - 1)}
+                  onClick={() => {
+                    setCallNumber(callNumber - 1)
+                    setshowSaveBtn(true)
+                  }}
                 >
                   <CIcon icon={cilMinus} />
                 </button>
@@ -331,7 +334,10 @@ const Settings = () => {
                   id="increment-button"
                   data-input-counter-increment="quantity-input"
                   className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
-                  onClick={() => setCallNumber(callNumber + 1)}
+                  onClick={() => {
+                    setCallNumber(callNumber + 1)
+                    setshowSaveBtn(true)
+                  }}
                 >
                   <CIcon icon={cilPlus} />
                 </button>
