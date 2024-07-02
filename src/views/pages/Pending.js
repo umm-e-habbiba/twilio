@@ -121,7 +121,7 @@ const Pending = () => {
           getAllUsers()
           reset({})
           setSuccess(true)
-          setSuccessMsg('User added successfully')
+          setSuccessMsg(result.message)
           setTimeout(() => {
             setSuccess(false)
             setSuccessMsg('')

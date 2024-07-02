@@ -54,6 +54,8 @@ const Settings = () => {
   const [callError, setCallError] = useState(false)
   const [callErrorMsg, setCallErrorMSg] = useState('')
   const [viewMessage, setViewMessage] = useState('')
+  const [callLoader, setCallLoader] = useState(false)
+  const [editLoader, setEditLoader] = useState(false)
 
   useEffect(() => {
     const getToken = localStorage.getItem('token')
@@ -98,7 +100,7 @@ const Settings = () => {
           setCallLoading(false)
           if (result.success) {
             setSuccess(true)
-            setSuccessMsg('Setting added successfully')
+            setSuccessMsg(result.message)
             getCallSettings()
             setTimeout(() => {
               setSuccess(false)
@@ -146,7 +148,7 @@ const Settings = () => {
           if (result.success) {
             setSuccess(true)
             setTextMessage('')
-            setSuccessMsg('Setting added successfully')
+            setSuccessMsg(result.message)
             getSMSSettings()
             setTimeout(() => {
               setSuccess(false)
@@ -231,7 +233,7 @@ const Settings = () => {
           setDeleteModal(false)
           getSMSSettings()
           setSuccess(true)
-          setSuccessMsg('Setting deleted successfully')
+          setSuccessMsg(result.message)
           setTimeout(() => {
             setSuccess(false)
             setSuccessMsg('')
@@ -244,6 +246,7 @@ const Settings = () => {
       .catch((error) => console.log('error', error))
   }
   const startCalling = () => {
+    setCallLoader(true)
     setCallError(false)
     setCallErrorMSg('')
     const myHeaders = new Headers()
@@ -265,10 +268,12 @@ const Settings = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result)
+        setCallLoader(false)
         if (result.status == 'success') {
           setSuccess(true)
           setTextMessage('')
-          setSuccessMsg(result.message)
+          setSuccessMsg('Call initiated successfully')
+          // setSuccessMsg(result.message)
           getSMSSettings()
           setTimeout(() => {
             setSuccess(false)
@@ -286,6 +291,54 @@ const Settings = () => {
       .catch((error) => {
         console.error(error)
       })
+  }
+  const editSMS = () => {
+    setEditLoader(true)
+    setTextMessageError('')
+    if (textMessage != '') {
+      const myHeaders = new Headers()
+      myHeaders.append('Authorization', token)
+      myHeaders.append('Content-Type', 'application/json')
+
+      const raw = JSON.stringify({
+        textMessage: textMessage,
+      })
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+      }
+
+      fetch(API_URL + 'api/update-sms/' + SmsId, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          // console.log(result)
+          if (result.status == 'success') {
+            setEditModal(false)
+            setSuccess(true)
+            setTextMessage('')
+            setSuccessMsg(result.message)
+            setEditLoader(false)
+            getSMSSettings()
+            setTimeout(() => {
+              setSuccess(false)
+              setSuccessMsg('')
+            }, 3000)
+          } else {
+            setTextMessageError(result.message)
+            setEditLoader(false)
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          // setSmsLoading(false)
+        })
+    } else {
+      setTextMessageError('Message field is required')
+      setEditLoader(false)
+    }
   }
   return (
     <DefaultLayout>
@@ -312,7 +365,7 @@ const Settings = () => {
                   className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
                   onClick={() => {
                     setCallNumber(callNumber - 1)
-                    setshowSaveBtn(true)
+                    // setshowSaveBtn(true)
                   }}
                 >
                   <CIcon icon={cilMinus} />
@@ -325,7 +378,7 @@ const Settings = () => {
                   value={callNumber}
                   onChange={(e) => {
                     setCallNumber(e.target.value)
-                    setshowSaveBtn(true)
+                    // setshowSaveBtn(true)
                   }}
                   required
                 />
@@ -336,7 +389,7 @@ const Settings = () => {
                   className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
                   onClick={() => {
                     setCallNumber(callNumber + 1)
-                    setshowSaveBtn(true)
+                    // setshowSaveBtn(true)
                   }}
                 >
                   <CIcon icon={cilPlus} />
@@ -346,7 +399,7 @@ const Settings = () => {
                 {'  '}
                 Calls per Hour
               </span>
-              {showSaveBtn && (
+              {/* {showSaveBtn && (
                 <CButton
                   color="success"
                   type="submit"
@@ -356,15 +409,15 @@ const Settings = () => {
                 >
                   {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
                 </CButton>
-              )}
+              )} */}
             </div>
             <CButton
               color="primary"
               className="px-4 text-white"
-              // disabled={callLoading ? true : false}
+              disabled={callLoader ? true : false}
               onClick={startCalling}
             >
-              {callLoading ? (
+              {callLoader ? (
                 <CSpinner color="light" size="sm" />
               ) : (
                 <>
@@ -446,7 +499,7 @@ const Settings = () => {
           {textMessageError && <span className="text-red-400 mt-3">{textMessageError}</span>}
           <center>
             <CButton
-              color="dark"
+              color="primary"
               type="submit"
               className="px-4 mt-3 mb-5"
               disabled={smsLoading ? true : false}
@@ -462,10 +515,10 @@ const Settings = () => {
           ) : (
             <>
               <hr />
-              <CTable striped>
+              <CTable striped responsive>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Days</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Message</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Date</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Time</CTableHeaderCell>
@@ -476,8 +529,12 @@ const Settings = () => {
                   {smsSettings && smsSettings.length > 0 ? (
                     smsSettings.map((x, i) => (
                       <CTableRow key={i}>
-                        <CTableHeaderCell scope="row">Day {i + 1}</CTableHeaderCell>
-                        <CTableDataCell>{x.textMessage}</CTableDataCell>
+                        <CTableHeaderCell scope="row">Day {x.days}</CTableHeaderCell>
+                        <CTableDataCell>
+                          {x.textMessage.length > 100
+                            ? x.textMessage.substring(0, 100) + '...'
+                            : x.textMessage}
+                        </CTableDataCell>
                         <CTableDataCell>{moment(x.date).format('Do MMMM YYYY')}</CTableDataCell>
                         <CTableDataCell>{moment(x.date).format('h:mm a')}</CTableDataCell>
                         <CTableDataCell>
@@ -495,10 +552,10 @@ const Settings = () => {
                             color="primary"
                             className="text-white py-2 my-2 mr-2"
                             onClick={(e) => {
-                              setDeleteModal(true)
+                              setEditModal(true)
                               setSmsId(x._id)
-                              setError(false)
-                              setErrorMsg('')
+                              setTextMessageError('')
+                              setTextMessage(x.textMessage)
                             }}
                           >
                             <CIcon icon={cilPen} />
@@ -551,6 +608,33 @@ const Settings = () => {
           </CButton>
           <CButton color="primary" onClick={deleteSms} disabled={deleteLoader ? true : false}>
             {deleteLoader ? <CSpinner color="light" size="sm" /> : 'Yes'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
+      {/* edit modal */}
+      <CModal
+        alignment="center"
+        visible={editModal}
+        onClose={() => setEditModal(false)}
+        backdrop="static"
+      >
+        <CModalHeader>
+          <CModalTitle>Update SMS Setting</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CFormTextarea
+            rows={5}
+            placeholder="Enter Message Here..."
+            className="mb-3"
+            label="Message"
+            value={textMessage}
+            onChange={(e) => setTextMessage(e.target.value)}
+          />
+          {textMessageError && <span className="text-red-400 mt-3">{textMessageError}</span>}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={editSMS} disabled={editLoader ? true : false}>
+            {editLoader ? <CSpinner color="light" size="sm" /> : 'Save'}
           </CButton>
         </CModalFooter>
       </CModal>
