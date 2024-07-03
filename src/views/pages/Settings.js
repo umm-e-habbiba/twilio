@@ -57,6 +57,7 @@ const Settings = () => {
   const [callLoader, setCallLoader] = useState(false)
   const [editLoader, setEditLoader] = useState(false)
   const [editSmsError, setEditSmsError] = useState('')
+  const [allUsers, setallUsers] = useState([])
 
   useEffect(() => {
     const getToken = localStorage.getItem('token')
@@ -65,6 +66,7 @@ const Settings = () => {
       startCalling()
       getCallSettings()
       getSMSSettings()
+      getAllUsers()
       const interval = setInterval(() => {
         startCalling()
       }, 300000)
@@ -78,7 +80,26 @@ const Settings = () => {
   useEffect(() => {
     console.log('call number', callNumber)
   }, [callNumber])
+  const getAllUsers = () => {
+    const myHeaders = new Headers()
+    myHeaders.append('Authorization', token)
 
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    }
+
+    fetch(API_URL + 'users', requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result)
+        if (result.success) {
+          setallUsers(result.Users?.filter((user) => user.status == 'Pending'))
+        }
+      })
+      .catch((error) => console.error(error))
+  }
   const addCallSetting = () => {
     setError(false)
     setErrorMsg('')
@@ -356,7 +377,7 @@ const Settings = () => {
         <CCardBody>
           <div className="flex justify-start items-center">
             <div
-              className="py-2 px-3 w-1/2 bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700"
+              className="py-2 px-3 w-full text-gray-800 border border-gray-200 rounded-lg dark:text-white dark:bg-gray-700 dark:border-gray-900"
               data-hs-input-number=""
             >
               <div className="w-full flex justify-between items-center gap-x-3">
@@ -364,18 +385,21 @@ const Settings = () => {
                   <span className="block font-medium text-sm text-gray-800 dark:text-white">
                     Number of Calls Per Hour
                   </span>
+                  <span className="block text-xs text-gray-500 dark:text-white">
+                    {allUsers.length} Pending Users
+                  </span>
                 </div>
                 <div className="flex items-center gap-x-1.5">
                   <button
                     type="button"
-                    className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                    className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 dark:bg-gray-600 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
                     onClick={() => {
                       setCallNumber(callNumber - 1)
                       setshowSaveBtn(true)
                     }}
                     disabled={callNumber == 0 ? true : false}
                   >
-                    <CIcon icon={cilMinus} />
+                    <CIcon icon={cilMinus} className="text-gray-800" />
                   </button>
                   <input
                     className="p-0 w-6 bg-transparent border-0 text-gray-800 text-center focus:ring-0 dark:text-white"
@@ -388,13 +412,13 @@ const Settings = () => {
                   />
                   <button
                     type="button"
-                    className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                    className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border dark:bg-gray-600 border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
                     onClick={() => {
                       setCallNumber(callNumber + 1)
                       setshowSaveBtn(true)
                     }}
                   >
-                    <CIcon icon={cilPlus} />
+                    <CIcon icon={cilPlus} className="text-gray-800 " />
                   </button>
                 </div>
               </div>
