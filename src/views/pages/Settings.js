@@ -56,6 +56,7 @@ const Settings = () => {
   const [viewMessage, setViewMessage] = useState('')
   const [callLoader, setCallLoader] = useState(false)
   const [editLoader, setEditLoader] = useState(false)
+  const [editSmsError, setEditSmsError] = useState('')
 
   useEffect(() => {
     const getToken = localStorage.getItem('token')
@@ -112,6 +113,7 @@ const Settings = () => {
               setSuccess(false)
               setSuccessMsg('')
             }, 3000)
+            setshowSaveBtn(false)
           } else {
             setCallNumberError(result.message)
           }
@@ -301,14 +303,14 @@ const Settings = () => {
   }
   const editSMS = () => {
     setEditLoader(true)
-    setTextMessageError('')
-    if (textMessage != '') {
+    setEditSmsError('')
+    if (viewMessage != '') {
       const myHeaders = new Headers()
       myHeaders.append('Authorization', token)
       myHeaders.append('Content-Type', 'application/json')
 
       const raw = JSON.stringify({
-        textMessage: textMessage,
+        textMessage: viewMessage,
       })
 
       const requestOptions = {
@@ -334,7 +336,7 @@ const Settings = () => {
               setSuccessMsg('')
             }, 3000)
           } else {
-            setTextMessageError(result.message)
+            setEditSmsError(result.message)
             setEditLoader(false)
           }
         })
@@ -343,7 +345,7 @@ const Settings = () => {
           // setSmsLoading(false)
         })
     } else {
-      setTextMessageError('Message field is required')
+      setEditSmsError('Message field is required')
       setEditLoader(false)
     }
   }
@@ -352,8 +354,65 @@ const Settings = () => {
       <CCard className="mb-3">
         <CCardHeader>Call Settings</CCardHeader>
         <CCardBody>
+          <div className="flex justify-start items-center">
+            <div
+              className="py-2 px-3 w-1/2 bg-white border border-gray-200 rounded-lg dark:bg-neutral-900 dark:border-neutral-700"
+              data-hs-input-number=""
+            >
+              <div className="w-full flex justify-between items-center gap-x-3">
+                <div>
+                  <span className="block font-medium text-sm text-gray-800 dark:text-white">
+                    Number of Calls Per Hour
+                  </span>
+                </div>
+                <div className="flex items-center gap-x-1.5">
+                  <button
+                    type="button"
+                    className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                    onClick={() => {
+                      setCallNumber(callNumber - 1)
+                      setshowSaveBtn(true)
+                    }}
+                    disabled={callNumber == 0 ? true : false}
+                  >
+                    <CIcon icon={cilMinus} />
+                  </button>
+                  <input
+                    className="p-0 w-6 bg-transparent border-0 text-gray-800 text-center focus:ring-0 dark:text-white"
+                    type="text"
+                    value={callNumber}
+                    onChange={(e) => {
+                      setCallNumber(e.target.value)
+                      setshowSaveBtn(true)
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                    onClick={() => {
+                      setCallNumber(callNumber + 1)
+                      setshowSaveBtn(true)
+                    }}
+                  >
+                    <CIcon icon={cilPlus} />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showSaveBtn && (
+              <CButton
+                color="success"
+                type="submit"
+                className="px-4 ml-5 text-white focus:border-0 focus:shadow-none"
+                disabled={callLoading ? true : false}
+                onClick={addCallSetting}
+              >
+                {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
+              </CButton>
+            )}
+          </div>
           <div className="flex justify-between items-center">
-            <div className="flex justify-start items-center flex-row">
+            {/* <div className="flex justify-start items-center flex-row">
               <span>Your{'  '}</span>
               <span className="flex items-center max-w-[10rem] px-3">
                 <button
@@ -409,7 +468,7 @@ const Settings = () => {
                   {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
                 </CButton>
               )}
-            </div>
+            </div> */}
             {/* <CButton
               color="primary"
               className="px-4 text-white"
@@ -553,8 +612,8 @@ const Settings = () => {
                             onClick={(e) => {
                               setEditModal(true)
                               setSmsId(x._id)
-                              setTextMessageError('')
-                              setTextMessage(x.textMessage)
+                              setEditSmsError('')
+                              setViewMessage(x.textMessage)
                             }}
                           >
                             <CIcon icon={cilPen} />
@@ -626,10 +685,10 @@ const Settings = () => {
             placeholder="Enter Message Here..."
             className="mb-3"
             label="Message"
-            value={textMessage}
-            onChange={(e) => setTextMessage(e.target.value)}
+            value={viewMessage}
+            onChange={(e) => setViewMessage(e.target.value)}
           />
-          {textMessageError && <span className="text-red-400 mt-3">{textMessageError}</span>}
+          {editSmsError && <span className="text-red-400 mt-3">{editSmsError}</span>}
         </CModalBody>
         <CModalFooter>
           <CButton color="primary" onClick={editSMS} disabled={editLoader ? true : false}>

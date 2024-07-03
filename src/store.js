@@ -16,5 +16,5 @@ const changeState = (state = initialState, { type, ...rest }) => {
 
 const store = createStore(changeState)
 export default store
-export const API_URL = 'http://localhost:8000/'
-// export const API_URL = 'http://167.71.95.212:8000/'
+// export const API_URL = 'http://localhost:8000/'
+export const API_URL = 'http://167.71.95.212:8000/'
