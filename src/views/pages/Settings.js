@@ -58,6 +58,8 @@ const Settings = () => {
   const [editLoader, setEditLoader] = useState(false)
   const [editSmsError, setEditSmsError] = useState('')
   const [allUsers, setallUsers] = useState([])
+  const [editCallModal, setEditCallModal] = useState(false)
+  const [viewCallNumber, setViewCallNumber] = useState('')
 
   useEffect(() => {
     const getToken = localStorage.getItem('token')
@@ -66,12 +68,19 @@ const Settings = () => {
       startCalling()
       getCallSettings()
       getSMSSettings()
-      getAllUsers()
+      getPendingUsers()
       const interval = setInterval(() => {
         startCalling()
       }, 300000)
 
-      return () => clearInterval(interval)
+      const UserInterval = setInterval(() => {
+        getPendingUsers()
+      }, 10000)
+
+      return () => {
+        clearInterval(interval)
+        clearInterval(UserInterval)
+      }
     } else {
       navigate('/login')
     }
@@ -80,7 +89,7 @@ const Settings = () => {
   useEffect(() => {
     console.log('call number', callNumber)
   }, [callNumber])
-  const getAllUsers = () => {
+  const getPendingUsers = () => {
     const myHeaders = new Headers()
     myHeaders.append('Authorization', token)
 
@@ -90,12 +99,11 @@ const Settings = () => {
       redirect: 'follow',
     }
 
-    fetch(API_URL + 'users', requestOptions)
+    fetch(API_URL + 'pending-users', requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result)
         if (result.success) {
-          setallUsers(result.Users?.filter((user) => user.status == 'Pending'))
+          setallUsers(result.Users)
         }
       })
       .catch((error) => console.error(error))
@@ -122,14 +130,28 @@ const Settings = () => {
       }
 
       fetch(API_URL + 'api/add-call', requestOptions)
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status == '400') {
+            setCallNumberError('Not enough pending users, kindly reduce the number')
+            // setCallError(true)
+            // setCallErrorMSg('Not enough pending users, kindly reduce the number')
+            // setTimeout(() => {
+            //   setCallError(false)
+            //   setCallErrorMSg('')
+            // }, 5000)
+          } else {
+            return response.json()
+          }
+        })
         .then((result) => {
           // console.log(result)
           setCallLoading(false)
           if (result.success) {
             setSuccess(true)
             setSuccessMsg(result.message)
-            getCallSettings()
+            // getCallSettings()
+            setEditCallModal(false)
+            setViewCallNumber(callNumber)
             setTimeout(() => {
               setSuccess(false)
               setSuccessMsg('')
@@ -214,6 +236,7 @@ const Settings = () => {
         if (result.success) {
           setCallSettings(result.Settings)
           setCallNumber(result.Settings[0].numberOfCallsPerHour)
+          setViewCallNumber(result.Settings[0].numberOfCallsPerHour)
           setCallSuccess(false)
         }
       })
@@ -299,23 +322,24 @@ const Settings = () => {
         console.log(result)
         setCallLoader(false)
         if (result.status == 'success') {
-          setSuccess(true)
+          // setSuccess(true)
           setTextMessage('')
-          setSuccessMsg('Call initiated successfully')
+          // setSuccessMsg('Call initiated successfully')
           // setSuccessMsg(result.message)
-          getSMSSettings()
-          setTimeout(() => {
-            setSuccess(false)
-            setSuccessMsg('')
-          }, 3000)
-        } else {
-          setCallError(true)
-          setCallErrorMSg(result.message)
-          setTimeout(() => {
-            setCallError(false)
-            setCallErrorMSg('')
-          }, 3000)
+          // getSMSSettings()
+          // setTimeout(() => {
+          //   setSuccess(false)
+          //   setSuccessMsg('')
+          // }, 3000)
         }
+        // else {
+        //   setCallError(true)
+        //   setCallErrorMSg(result.message)
+        //   setTimeout(() => {
+        //     setCallError(false)
+        //     setCallErrorMSg('')
+        //   }, 3000)
+        // }
       })
       .catch((error) => {
         console.error(error)
@@ -375,9 +399,9 @@ const Settings = () => {
       <CCard className="mb-3">
         <CCardHeader>Call Settings</CCardHeader>
         <CCardBody>
-          <div className="flex justify-start items-center">
+          {/* <div className="flex justify-start items-center py-4">
             <div
-              className="py-2 px-3 w-full text-gray-800 border border-gray-200 rounded-lg dark:text-white dark:bg-gray-700 dark:border-gray-900"
+              className="py-4 px-3 w-full text-gray-800 border border-gray-200 rounded-lg dark:text-white dark:bg-gray-700 dark:border-gray-900"
               data-hs-input-number=""
             >
               <div className="w-full flex justify-between items-center gap-x-3">
@@ -427,88 +451,38 @@ const Settings = () => {
               <CButton
                 color="success"
                 type="submit"
-                className="px-4 ml-5 text-white focus:border-0 focus:shadow-none"
+                className="px-4 py-4 ml-5 text-white focus:border-0 focus:shadow-none"
                 disabled={callLoading ? true : false}
                 onClick={addCallSetting}
               >
                 {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
               </CButton>
             )}
-          </div>
-          <div className="flex justify-between items-center">
-            {/* <div className="flex justify-start items-center flex-row">
-              <span>Your{'  '}</span>
-              <span className="flex items-center max-w-[10rem] px-3">
-                <button
-                  type="button"
-                  id="decrement-button"
-                  data-input-counter-decrement="quantity-input"
-                  className={`${callNumber == 0 ? 'opacity-70' : ''} flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none`}
-                  onClick={() => {
-                    setCallNumber(callNumber - 1)
-                    setshowSaveBtn(true)
-                  }}
-                  disabled={callNumber == 0 ? true : false}
-                >
-                  <CIcon icon={cilMinus} />
-                </button>
-                <input
-                  type="text"
-                  id="quantity-input"
-                  data-input-counter
-                  className="bg-gray-50 border-x-0 border-gray-100 h-9 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  value={callNumber}
-                  onChange={(e) => {
-                    setCallNumber(e.target.value)
-                    setshowSaveBtn(true)
-                  }}
-                  required
-                />
-                <button
-                  type="button"
-                  id="increment-button"
-                  data-input-counter-increment="quantity-input"
-                  className="flex justify-center items-center bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-2 h-9 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
-                  onClick={() => {
-                    setCallNumber(callNumber + 1)
-                    setshowSaveBtn(true)
-                  }}
-                >
-                  <CIcon icon={cilPlus} />
-                </button>
-              </span>
-              <span>
-                {'  '}
-                Calls per Hour
-              </span>
-              {showSaveBtn && (
-                <CButton
-                  color="success"
-                  type="submit"
-                  className="px-4 ml-5 text-white focus:border-0 focus:shadow-none"
-                  disabled={callLoading ? true : false}
-                  onClick={addCallSetting}
-                >
-                  {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
-                </CButton>
-              )}
-            </div> */}
-            {/* <CButton
-              color="primary"
-              className="px-4 text-white"
-              disabled={callLoader ? true : false}
-              onClick={startCalling}
-            >
-              {callLoader ? (
-                <CSpinner color="light" size="sm" />
-              ) : (
-                <>
-                  <CIcon icon={cilPhone} className="mr-2" />
-                  Start Calling
-                </>
-              )}
-            </CButton> */}
-          </div>
+          </div> */}
+          <h2 className="mb-3">
+            Pending Users: <span className="font-bold">{allUsers}</span>
+          </h2>
+          <h2 className="mb-3">
+            Number of calls per hour: <span className="font-bold">{viewCallNumber}</span>
+          </h2>
+          {/* <CFormInput
+            placeholder="Enter number of calls per hour"
+            className="mb-3"
+            label="Number of Calls per hour"
+            value={viewCallNumber}
+            disabled={true}
+          /> */}
+          <CButton
+            color="primary"
+            type="submit"
+            className="px-4 mb-3"
+            onClick={() => {
+              setEditCallModal(true)
+            }}
+          >
+            Edit
+          </CButton>
+
           {/* <CFormInput
             type="number"
             placeholder="Enter number of calls per hour"
@@ -602,27 +576,39 @@ const Settings = () => {
                   <CTableRow>
                     <CTableHeaderCell scope="col">Days</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Message</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Time</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Date
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Time
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Actions
+                    </CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
                   {smsSettings && smsSettings.length > 0 ? (
                     smsSettings.map((x, i) => (
                       <CTableRow key={i}>
-                        <CTableHeaderCell scope="row">Day {x.days}</CTableHeaderCell>
-                        <CTableDataCell>
+                        <CTableHeaderCell scope="row" className="align-middle">
+                          Day {x.days}
+                        </CTableHeaderCell>
+                        <CTableDataCell className="message-width align-middle">
                           {x.textMessage.length > 100
                             ? x.textMessage.substring(0, 100) + '...'
                             : x.textMessage}
                         </CTableDataCell>
-                        <CTableDataCell>{moment(x.date).format('Do MMMM YYYY')}</CTableDataCell>
-                        <CTableDataCell>{moment(x.date).format('h:mm a')}</CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell className="align-middle">
+                          {moment(x.date).format('Do MMMM YYYY')}
+                        </CTableDataCell>
+                        <CTableDataCell className="align-middle">
+                          {moment(x.date).format('h:mm a')}
+                        </CTableDataCell>
+                        <CTableDataCell className="flex justify-start items-start">
                           <CButton
                             color="success"
-                            className="text-white py-2 my-2 mr-2"
+                            className="text-white py-2 mr-3"
                             onClick={(e) => {
                               setViewModal(true)
                               setViewMessage(x.textMessage)
@@ -632,7 +618,7 @@ const Settings = () => {
                           </CButton>
                           <CButton
                             color="primary"
-                            className="text-white py-2 my-2 mr-2"
+                            className="text-white py-2 mr-3"
                             onClick={(e) => {
                               setEditModal(true)
                               setSmsId(x._id)
@@ -644,7 +630,7 @@ const Settings = () => {
                           </CButton>
                           <CButton
                             color="danger"
-                            className="text-white py-2 my-2"
+                            className="text-white py-2"
                             onClick={(e) => {
                               setDeleteModal(true)
                               setSmsId(x._id)
@@ -717,6 +703,31 @@ const Settings = () => {
         <CModalFooter>
           <CButton color="primary" onClick={editSMS} disabled={editLoader ? true : false}>
             {editLoader ? <CSpinner color="light" size="sm" /> : 'Save'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
+      {/* edit call modal */}
+      <CModal
+        alignment="center"
+        visible={editCallModal}
+        onClose={() => setEditCallModal(false)}
+        backdrop="static"
+      >
+        <CModalHeader>
+          <CModalTitle>Number of calls per hour</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CFormInput
+            placeholder="Enter number of calls per hour"
+            className="mb-3"
+            value={callNumber}
+            onChange={(e) => setCallNumber(e.target.value)}
+          />
+          {callNumberError && <span className="text-red-400 mt-3">{callNumberError}</span>}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={addCallSetting} disabled={callLoading ? true : false}>
+            {callLoading ? <CSpinner color="light" size="sm" /> : 'Save'}
           </CButton>
         </CModalFooter>
       </CModal>

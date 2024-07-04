@@ -164,11 +164,21 @@ const Pending = () => {
               <CTable striped>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Number</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Time</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      #
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Number
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Date
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Time
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center">
+                      Status
+                    </CTableHeaderCell>
                     {/* <CTableHeaderCell scope="col">Actions</CTableHeaderCell> */}
                   </CTableRow>
                 </CTableHead>
@@ -176,11 +186,17 @@ const Pending = () => {
                   {allUsers && allUsers.length > 0 ? (
                     allUsers.map((user, i) => (
                       <CTableRow key={i}>
-                        <CTableDataCell scope="row">{i + 1}</CTableDataCell>
-                        <CTableDataCell>{user.phone}</CTableDataCell>
-                        <CTableDataCell>{moment(user.date).format('Do MMMM YYYY')}</CTableDataCell>
-                        <CTableDataCell>{moment(user.date).format('h:mm a')}</CTableDataCell>
-                        <CTableDataCell className="flex justify-start items-center">
+                        <CTableDataCell scope="row" className="text-center">
+                          {i + 1}
+                        </CTableDataCell>
+                        <CTableDataCell className="text-center">{user.phone}</CTableDataCell>
+                        <CTableDataCell className="text-center">
+                          {moment(user.date).format('Do MMMM YYYY')}
+                        </CTableDataCell>
+                        <CTableDataCell className="text-center">
+                          {moment(user.date).format('h:mm a')}
+                        </CTableDataCell>
+                        <CTableDataCell className="flex justify-center items-center">
                           <CBadge color="warning" className="w-4 h-4 rounded-full mr-1">
                             {' '}
                           </CBadge>
