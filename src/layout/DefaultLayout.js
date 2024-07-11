@@ -21,7 +21,7 @@ const DefaultLayout = ({ children }) => {
           {/* <AppContent /> */}
           {children}
         </div>
-        {/* <AppFooter /> */}
+        <AppFooter />
       </div>
     </div>
   )
